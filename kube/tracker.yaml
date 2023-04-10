@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expenses-tracker-backend-deployment
+  labels:
+    app: expenses-tracker-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expenses-tracker-backend
+  template:
+    metadata:
+      labels:
+        app: expenses-tracker-backend
+    spec:
+      containers:
+        - name: expenses-tracker-backend
+          image: rahulshome/expenses-tracker-backend:v1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: "0.25"
+            limits:
+              memory: 1024Mi
+              cpu: "0.50"
+          ports:
+            - containerPort: 80
+          env:
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGODB_URL
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: KAFKA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_TOPIC
+            - name: KAFKA_CONSUMER_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_CONSUMER_GROUP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expenses-tracker-ui-deployment
+  labels:
+    app: expenses-tracker-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expenses-tracker-ui
+  template:
+    metadata:
+      labels:
+        app: expenses-tracker-ui
+    spec:
+      containers:
+        - name: expenses-tracker-ui
+          image: rahulshome/expenses-tracker-ui:v1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: "0.25"
+            limits:
+              memory: 256Mi
+              cpu: "0.50"
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expenses-tracker-backend-service
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: expenses-tracker-backend
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expenses-tracker-ui-service
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: expenses-tracker-ui

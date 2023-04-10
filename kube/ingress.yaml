@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-routing
+spec:
+  rules:
+    - host: track.k8s.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: expenses-tracker-ui-service
+                port:
+                  number: 80
+
+    - host: api.track.k8s.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: expenses-tracker-backend-service
+                port:
+                  number: 80
+
+    - host: manage.k8s.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: expenses-manager-ui-service
+                port:
+                  number: 80
+
+    - host: api.manage.k8s.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: expenses-manager-backend-service
+                port:
+                  number: 80

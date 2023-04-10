@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafdrop-deployment
+  labels:
+    app: kafdrop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafdrop
+  template:
+    metadata:
+      labels:
+        app: kafdrop
+    spec:
+      containers:
+        - name: kafdrop
+          image: obsidiandynamics/kafdrop
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: "1.0"
+          ports:
+            - containerPort: 9000
+          env:
+            - name: KAFKA_BROKERCONNECT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: JVM_OPTS
+              value: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafdrop-service
+spec:
+  ports:
+    - port: 9000
+  selector:
+    app: kafdrop

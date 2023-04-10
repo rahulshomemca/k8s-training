@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-deployment
+  labels:
+    app: react
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react
+  template:
+    metadata:
+      labels:
+        app: react
+    spec:
+      containers:
+        - name: react
+          image: rahulshome/react-todo:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: "0.25"
+            limits:
+              memory: 256Mi
+              cpu: "0.50"
+          ports:
+            - containerPort: 80
